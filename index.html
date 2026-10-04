@@ -6,12 +6,13 @@
     <title>Snake Deluxe</title>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --panel-bg: #1e293b;
+            --bg-color: #070a12;
+            --panel-bg: rgba(30, 41, 59, 0.65);
+            --panel-border: rgba(255, 255, 255, 0.1);
             --accent-color: #10b981;
+            --accent-glow: rgba(16, 185, 129, 0.3);
             --text-color: #f8fafc;
             --text-muted: #94a3b8;
-            --border-color: #334155;
             --gold-color: #f59e0b;
         }
 
@@ -20,7 +21,7 @@
             margin: 0;
             padding: 0;
             user-select: none;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
 
         body {
@@ -32,6 +33,92 @@
             align-items: center;
             justify-content: center;
             padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* DINAMIKUS HÁTTÉR ELEMEK */
+        .bg-gradient {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: 
+                radial-gradient(circle at 50% 20%, rgba(16, 185, 129, 0.12), transparent 40%),
+                radial-gradient(circle at 80% 80%, rgba(168, 85, 247, 0.08), transparent 50%),
+                radial-gradient(circle at 10% 90%, rgba(59, 130, 246, 0.1), transparent 40%),
+                linear-gradient(180deg, #050811 0%, #0c1120 100%);
+            z-index: -3;
+        }
+
+        /* MOVING GRID PATTERN */
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 200%;
+            height: 200%;
+            background-image: 
+                linear-gradient(to right, rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            z-index: -2;
+            animation: moveGrid 30s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes moveGrid {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-40px, -40px); }
+        }
+
+        /* FLOATING NEON GLOW ORBS */
+        .glow-orb-1 {
+            position: fixed;
+            width: 350px;
+            height: 350px;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.25) 0%, rgba(0,0,0,0) 70%);
+            top: -100px;
+            left: -100px;
+            border-radius: 50%;
+            z-index: -1;
+            filter: blur(50px);
+            animation: floatOrb1 12s ease-in-out infinite alternate;
+        }
+
+        .glow-orb-2 {
+            position: fixed;
+            width: 450px;
+            height: 450px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.2) 0%, rgba(0,0,0,0) 70%);
+            bottom: -150px;
+            right: -100px;
+            border-radius: 50%;
+            z-index: -1;
+            filter: blur(60px);
+            animation: floatOrb2 15s ease-in-out infinite alternate;
+        }
+
+        @keyframes floatOrb1 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(100px, 80px) scale(1.2); }
+        }
+
+        @keyframes floatOrb2 {
+            0% { transform: translate(0, 0) scale(1); }
+            100% { transform: translate(-80px, -60px) scale(1.15); }
+        }
+
+        /* FULLSCREEN LIGHT TRAIL CANVAS */
+        #globalTrailCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 9999;
         }
 
         header {
@@ -40,12 +127,14 @@
         }
 
         h1 {
-            font-size: 2.2rem;
+            font-size: 2.5rem;
             color: var(--accent-color);
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 10px;
+            text-shadow: 0 0 20px var(--accent-glow);
+            letter-spacing: 1px;
         }
 
         .player-info {
@@ -57,10 +146,13 @@
         .stats-bar {
             display: flex;
             gap: 15px;
-            background-color: var(--panel-bg);
-            padding: 10px 20px;
-            border-radius: 10px;
-            border: 1px solid var(--border-color);
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 12px 24px;
+            border-radius: 12px;
+            border: 1px solid var(--panel-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
             margin-bottom: 15px;
             flex-wrap: wrap;
             justify-content: center;
@@ -82,24 +174,38 @@
         }
 
         .btn {
-            background-color: var(--panel-bg);
+            background: var(--panel-bg);
+            backdrop-filter: blur(8px);
             color: var(--text-color);
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--panel-border);
             padding: 8px 16px;
-            border-radius: 6px;
+            border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.2s;
+            transition: all 0.2s ease;
+            position: relative;
+            z-index: 2;
         }
 
         .btn:hover {
-            background-color: var(--border-color);
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.25);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
         .btn.active {
             background-color: var(--accent-color);
             border-color: var(--accent-color);
             color: #000;
+            box-shadow: 0 0 15px var(--accent-glow);
+        }
+
+        .btn-menu {
+            width: 100%;
+            padding: 12px;
+            font-size: 1rem;
+            margin-top: 5px;
         }
 
         .main-container {
@@ -108,18 +214,25 @@
             align-items: flex-start;
             flex-wrap: wrap;
             justify-content: center;
+            max-width: 100%;
         }
 
         .game-wrapper {
             position: relative;
+            max-width: 100%;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.6);
         }
 
-        canvas {
-            background-color: #090d16;
-            border: 2px solid var(--border-color);
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+        canvas#gameCanvas {
+            background-color: rgba(9, 13, 22, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid var(--panel-border);
+            border-radius: 12px;
             display: block;
+            max-width: 100%;
+            height: auto;
         }
 
         .overlay {
@@ -128,14 +241,22 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(15, 23, 42, 0.85);
-            border-radius: 10px;
+            background: rgba(7, 10, 18, 0.9);
+            border-radius: 12px;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 15px;
-            backdrop-filter: blur(4px);
+            gap: 12px;
+            backdrop-filter: blur(8px);
+            padding: 20px;
+            text-align: center;
+            z-index: 10;
+        }
+
+        .overlay h2, .overlay p {
+            position: relative;
+            z-index: 2;
         }
 
         .hidden {
@@ -150,10 +271,13 @@
         }
 
         .accordion {
-            background-color: var(--panel-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
+            background: var(--panel-bg);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid var(--panel-border);
+            border-radius: 10px;
             overflow: hidden;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
         }
 
         .accordion-header {
@@ -164,6 +288,7 @@
             justify-content: space-between;
             align-items: center;
             background-color: rgba(255,255,255,0.03);
+            transition: background 0.2s;
         }
 
         .accordion-header:hover {
@@ -172,7 +297,7 @@
 
         .accordion-content {
             padding: 15px;
-            border-top: 1px solid var(--border-color);
+            border-top: 1px solid var(--panel-border);
             max-height: 280px;
             overflow-y: auto;
         }
@@ -188,17 +313,18 @@
 
         .bp-progress-bg {
             width: 100%;
-            background-color: rgba(0,0,0,0.3);
+            background-color: rgba(0,0,0,0.4);
             border-radius: 6px;
             height: 12px;
             margin-bottom: 10px;
             overflow: hidden;
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--panel-border);
         }
 
         .bp-progress-fill {
             height: 100%;
             background-color: var(--gold-color);
+            box-shadow: 0 0 8px var(--gold-color);
             width: 0%;
             transition: width 0.3s;
         }
@@ -209,6 +335,7 @@
             color: var(--accent-color);
             margin: 10px 0 5px 0;
             text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .shop-grid {
@@ -219,9 +346,9 @@
         }
 
         .shop-card {
-            background-color: rgba(0,0,0,0.2);
-            border: 1px solid var(--border-color);
-            border-radius: 6px;
+            background-color: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--panel-border);
+            border-radius: 8px;
             padding: 8px;
             text-align: center;
             display: flex;
@@ -244,8 +371,9 @@
         .dpad-btn {
             width: 50px;
             height: 50px;
-            background-color: var(--panel-bg);
-            border: 1px solid var(--border-color);
+            background: var(--panel-bg);
+            backdrop-filter: blur(8px);
+            border: 1px solid var(--panel-border);
             color: white;
             font-size: 1.2rem;
             border-radius: 8px;
@@ -260,6 +388,15 @@
     </style>
 </head>
 <body>
+
+    <!-- ÚJ DIZÁJNOLT HÁTTÉR ELEMEK -->
+    <div class="bg-gradient"></div>
+    <div class="bg-grid"></div>
+    <div class="glow-orb-1"></div>
+    <div class="glow-orb-2"></div>
+
+    <!-- GLOBÁLIS FÉNYCSÍK CANVAS -->
+    <canvas id="globalTrailCanvas"></canvas>
 
     <header>
         <h1>🐍 Snake Deluxe</h1>
@@ -286,29 +423,43 @@
         <div class="game-wrapper">
             <canvas id="gameCanvas" width="400" height="400"></canvas>
 
-            <div id="start-overlay" class="overlay">
-                <h2>Készen állsz?</h2>
-                <p style="color: var(--text-muted); font-size: 0.9rem;">Irányítás: Nyilak / WASD | Szünet: P</p>
-                <button class="btn" style="background-color: var(--accent-color); color: #000;" onclick="startGame()">Játék Indítása</button>
+            <!-- FŐMENÜ OVERLAY -->
+            <div id="main-menu-overlay" class="overlay">
+                <h2 style="font-size: 1.8rem; color: var(--accent-color);">FŐMENÜ</h2>
+                <p style="color: var(--text-muted); font-size: 0.85rem;">Válassz egy lehetőséget az induláshoz!</p>
+                <button class="btn btn-menu" style="background-color: var(--accent-color); color: #000; font-weight: bold;" onclick="startSingleplayer()">🎮 Egyéni Játék (Singleplayer)</button>
+                <button class="btn btn-menu" onclick="startOnlineMatchmaking()">🌐 Online Aréna (Nagy pálya + Botok)</button>
+                <button class="btn btn-menu" onclick="openAccordion('shop')">🛒 Bolt & Testreszabás</button>
+                <button class="btn btn-menu" onclick="openAccordion('bp')">👑 Battle Pass</button>
+            </div>
+
+            <!-- ONLINE KERESÉS OVERLAY -->
+            <div id="online-overlay" class="overlay hidden">
+                <h2>🌐 ONLINE MÓD</h2>
+                <p id="online-status-text">Keresés ellenfelekre...</p>
+                <div style="font-size: 0.85rem; color: var(--text-muted);" id="online-timer">00:03</div>
+                <button class="btn" style="margin-top: 10px;" onclick="showMainMenu()">Vissza a Menübe</button>
             </div>
 
             <div id="pause-overlay" class="overlay hidden">
                 <h2>JÁTÉK SZÜNETELTETVE</h2>
                 <button class="btn" onclick="togglePause()">Folytatás</button>
+                <button class="btn" style="background-color: #ef4444; color: #fff;" onclick="showMainMenu()">Főmenü</button>
             </div>
 
             <div id="gameover-overlay" class="overlay hidden">
                 <h2 style="color: #ef4444;">JÁTÉK VÉGE</h2>
                 <p>Elért pontszám: <span id="final-score">0</span></p>
                 <p>Szerzett érmék: 🪙 <span id="final-coins">0</span></p>
-                <button class="btn" style="background-color: var(--accent-color); color: #000;" onclick="startGame()">Újraindítás</button>
+                <button class="btn" style="background-color: var(--accent-color); color: #000;" id="restart-btn" onclick="restartCurrentGame()">Újraindítás</button>
+                <button class="btn" onclick="showMainMenu()">Főmenü</button>
             </div>
         </div>
 
         <div class="sidebar">
             <!-- Battle Pass -->
             <div class="accordion">
-                <div class="accordion-header" onclick="toggleAccordion('bp')">👑 Battle Pass <span>▲</span></div>
+                <div class="accordion-header" onclick="toggleAccordion('bp')">👑 Battle Pass <span id="bp-icon">▲</span></div>
                 <div class="accordion-content" id="bp-content">
                     <div style="font-size: 0.85rem; margin-bottom: 5px; display: flex; justify-content: space-between;">
                         <span>Haladás:</span>
@@ -323,7 +474,7 @@
 
             <!-- Bolt (Shop) -->
             <div class="accordion">
-                <div class="accordion-header" onclick="toggleAccordion('shop')">🛒 Bolt & Testreszabás <span>▼</span></div>
+                <div class="accordion-header" onclick="toggleAccordion('shop')">🛒 Bolt & Testreszabás <span id="shop-icon">▼</span></div>
                 <div class="accordion-content hidden" id="shop-content">
                     
                     <div class="shop-category">🐍 Kígyó Skinek</div>
@@ -383,7 +534,7 @@
 
             <!-- Dicsőségtábla -->
             <div class="accordion">
-                <div class="accordion-header" onclick="toggleAccordion('lb')">🏆 Dicsőségtábla <span>▼</span></div>
+                <div class="accordion-header" onclick="toggleAccordion('lb')">🏆 Dicsőségtábla <span id="lb-icon">▼</span></div>
                 <div class="accordion-content hidden" id="lb-content">
                     <div class="leaderboard-item"><span>#1 ProSnake</span><b>120 pont</b></div>
                     <div class="leaderboard-item"><span>#2 Játékos</span><b>100 pont</b></div>
@@ -394,7 +545,7 @@
 
             <!-- Napi Küldetések -->
             <div class="accordion">
-                <div class="accordion-header" onclick="toggleAccordion('quests')">📜 Napi Küldetések <span>▼</span></div>
+                <div class="accordion-header" onclick="toggleAccordion('quests')">📜 Napi Küldetések <span id="quests-icon">▼</span></div>
                 <div class="accordion-content hidden" id="quests-content">
                     <div class="quest-item">
                         <div>
@@ -420,12 +571,81 @@
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const gridSize = 20;
-        const tileCount = canvas.width / gridSize;
+        let tileCountX = canvas.width / gridSize;
+        let tileCountY = canvas.height / gridSize;
 
-        // Játék állapota
+        // --- EGÉSZ OLDALRA KITERJEDŐ KURZOR FÉNYCSÍK LOGIKA ---
+        const trailCanvas = document.getElementById('globalTrailCanvas');
+        const tCtx = trailCanvas.getContext('2d');
+        let trailParticles = [];
+
+        function resizeTrailCanvas() {
+            trailCanvas.width = window.innerWidth;
+            trailCanvas.height = window.innerHeight;
+        }
+        window.addEventListener('resize', resizeTrailCanvas);
+        resizeTrailCanvas();
+
+        window.addEventListener('mousemove', (e) => {
+            const x = e.clientX;
+            const y = e.clientY;
+
+            for (let i = 0; i < 3; i++) {
+                trailParticles.push({
+                    x: x,
+                    y: y,
+                    vx: (Math.random() - 0.5) * 1.8,
+                    vy: (Math.random() - 0.5) * 1.8,
+                    size: Math.random() * 4 + 3,
+                    life: 1.0,
+                    decay: Math.random() * 0.03 + 0.025
+                });
+            }
+        });
+
+        function animateTrail() {
+            tCtx.clearRect(0, 0, trailCanvas.width, trailCanvas.height);
+
+            for (let i = trailParticles.length - 1; i >= 0; i--) {
+                let p = trailParticles[i];
+                p.x += p.vx;
+                p.y += p.vy;
+                p.life -= p.decay;
+
+                if (p.life <= 0) {
+                    trailParticles.splice(i, 1);
+                    continue;
+                }
+
+                tCtx.beginPath();
+                tCtx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                tCtx.fillStyle = `rgba(16, 185, 129, ${p.life})`;
+                tCtx.shadowBlur = 12;
+                tCtx.shadowColor = '#10b981';
+                tCtx.fill();
+            }
+
+            if (trailParticles.length > 1) {
+                tCtx.beginPath();
+                tCtx.moveTo(trailParticles[0].x, trailParticles[0].y);
+                for (let i = 1; i < trailParticles.length; i++) {
+                    tCtx.lineTo(trailParticles[i].x, trailParticles[i].y);
+                }
+                tCtx.strokeStyle = 'rgba(16, 185, 129, 0.25)';
+                tCtx.lineWidth = 2.5;
+                tCtx.stroke();
+            }
+
+            requestAnimationFrame(animateTrail);
+        }
+        animateTrail();
+
+        // --- JÁTÉK ÁLLAPOTA ---
+        let isOnlineMode = false;
         let snake = [];
         let dx = gridSize, dy = 0;
-        let food = { x: 0, y: 0, type: 'normal' };
+        let foods = []; 
+        let bots = [];  
         let obstacles = [];
         let particles = [];
         let score = 0;
@@ -438,8 +658,9 @@
         let isPaused = false;
         let isGameOver = false;
         let soundEnabled = true;
+        let gameTick = 0;
 
-        // Kiválasztott skinek & birtokolt tárgyak
+        // Skinek & Tárgyak
         let selectedSnake = 'green';
         let selectedFood = 'apple';
         let selectedBg = 'dark';
@@ -493,59 +714,162 @@
         }
 
         function setDifficulty(level) {
-            document.querySelectorAll('.controls-bar .btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.controls-bar .btn').forEach(b => {
+                if (b.id !== 'audio-btn') b.classList.remove('active');
+            });
             event.target.classList.add('active');
             if (level === 'easy') gameSpeed = 130;
             if (level === 'medium') gameSpeed = 100;
             if (level === 'hard') gameSpeed = 70;
         }
 
-        function startGame() {
+        function setCanvasSize(online) {
+            if (online) {
+                canvas.width = 1200;
+                canvas.height = 800;
+            } else {
+                canvas.width = 400;
+                canvas.height = 400;
+            }
+            tileCountX = canvas.width / gridSize;
+            tileCountY = canvas.height / gridSize;
+        }
+
+        function showMainMenu() {
+            if (gameInterval) clearInterval(gameInterval);
+            document.getElementById('main-menu-overlay').classList.remove('hidden');
+            document.getElementById('online-overlay').classList.add('hidden');
+            document.getElementById('pause-overlay').classList.add('hidden');
+            document.getElementById('gameover-overlay').classList.add('hidden');
+            setCanvasSize(false);
+            draw();
+        }
+
+        function restartCurrentGame() {
+            if (isOnlineMode) startOnlineGame();
+            else startSingleplayer();
+        }
+
+        function startSingleplayer() {
+            isOnlineMode = false;
+            setCanvasSize(false);
+            
             snake = [{ x: 10 * gridSize, y: 10 * gridSize }, { x: 9 * gridSize, y: 10 * gridSize }];
             dx = gridSize; dy = 0;
             score = 0;
+            bots = [];
+            foods = [];
             isPaused = false;
             isGameOver = false;
             updateStats();
             
-            document.getElementById('start-overlay').classList.add('hidden');
-            document.getElementById('pause-overlay').classList.add('hidden');
-            document.getElementById('gameover-overlay').classList.add('hidden');
-
+            hideOverlays();
             generateObstacles();
-            spawnFood();
+            spawnFood(1);
             
             if (gameInterval) clearInterval(gameInterval);
             gameInterval = setInterval(gameLoop, gameSpeed);
         }
 
+        function startOnlineMatchmaking() {
+            document.getElementById('main-menu-overlay').classList.add('hidden');
+            document.getElementById('online-overlay').classList.remove('hidden');
+            document.getElementById('online-status-text').innerText = "Keresés ellenfelekre...";
+            
+            let timeLeft = 3;
+            document.getElementById('online-timer').innerText = `00:0${timeLeft}`;
+            
+            const timer = setInterval(() => {
+                timeLeft--;
+                document.getElementById('online-timer').innerText = `00:0${timeLeft}`;
+                if (timeLeft <= 0) {
+                    clearInterval(timer);
+                    document.getElementById('online-status-text').innerText = "Bot szobához csatlakoztatva!";
+                    setTimeout(() => {
+                        startOnlineGame();
+                    }, 800);
+                }
+            }, 1000);
+        }
+
+        function startOnlineGame() {
+            isOnlineMode = true;
+            setCanvasSize(true);
+            hideOverlays();
+
+            snake = [{ x: 25 * gridSize, y: 20 * gridSize }, { x: 24 * gridSize, y: 20 * gridSize }];
+            dx = gridSize; dy = 0;
+            score = 0;
+            obstacles = [];
+            foods = [];
+            bots = [];
+            gameTick = 0;
+
+            const botNames = ['AlphaBot', 'ViperX', 'Slayer_HU', 'SnakeKing', 'CyberBoa', 'ShadowSnake'];
+            const botColors = ['#ef4444', '#a855f7', '#3b82f6', '#ec4899', '#eab308', '#06b6d4'];
+
+            for (let i = 0; i < botNames.length; i++) {
+                spawnBot(botNames[i], botColors[i]);
+            }
+
+            spawnFood(40);
+
+            isPaused = false;
+            isGameOver = false;
+            updateStats();
+
+            if (gameInterval) clearInterval(gameInterval);
+            gameInterval = setInterval(gameLoop, 85);
+        }
+
+        function spawnBot(name, color) {
+            let bx = Math.floor(Math.random() * (tileCountX - 6) + 3) * gridSize;
+            let by = Math.floor(Math.random() * (tileCountY - 6) + 3) * gridSize;
+            bots.push({
+                name: name,
+                color: color,
+                snake: [{ x: bx, y: by }, { x: bx - gridSize, y: by }],
+                dx: gridSize,
+                dy: 0,
+                alive: true
+            });
+        }
+
+        function hideOverlays() {
+            document.getElementById('main-menu-overlay').classList.add('hidden');
+            document.getElementById('online-overlay').classList.add('hidden');
+            document.getElementById('pause-overlay').classList.add('hidden');
+            document.getElementById('gameover-overlay').classList.add('hidden');
+        }
+
         function generateObstacles() {
             obstacles = [];
-            const difficultyBtn = document.querySelector('.controls-bar .btn.active').innerText;
+            const activeBtn = document.querySelector('.controls-bar .btn.active');
+            const difficultyBtn = activeBtn ? activeBtn.innerText : 'Könnyű';
             if (difficultyBtn === 'Közepes' || difficultyBtn === 'Nehéz') {
                 const count = difficultyBtn === 'Nehéz' ? 8 : 4;
                 for (let i = 0; i < count; i++) {
                     obstacles.push({
-                        x: Math.floor(Math.random() * tileCount) * gridSize,
-                        y: Math.floor(Math.random() * tileCount) * gridSize
+                        x: Math.floor(Math.random() * tileCountX) * gridSize,
+                        y: Math.floor(Math.random() * tileCountY) * gridSize
                     });
                 }
             }
         }
 
-        function spawnFood() {
-            food = {
-                x: Math.floor(Math.random() * tileCount) * gridSize,
-                y: Math.floor(Math.random() * tileCount) * gridSize,
-                type: 'normal'
-            };
-
-            const rand = Math.random();
-            if (rand < 0.15) food.type = 'gold';
+        function spawnFood(count = 1) {
+            for (let i = 0; i < count; i++) {
+                foods.push({
+                    x: Math.floor(Math.random() * tileCountX) * gridSize,
+                    y: Math.floor(Math.random() * tileCountY) * gridSize,
+                    type: Math.random() < 0.25 ? 'gold' : 'normal'
+                });
+            }
         }
 
         function gameLoop() {
             if (isPaused || isGameOver) return;
+            gameTick++;
 
             const head = { x: snake[0].x + dx, y: snake[0].y + dy };
 
@@ -558,77 +882,194 @@
                 if (head.x === obs.x && head.y === obs.y) return gameOver();
             }
 
-            snake.unshift(head);
-
-            if (head.x === food.x && head.y === food.y) {
-                createParticles(food.x, food.y);
-                
-                if (food.type === 'normal') {
-                    score += 10; coins += 1; xp += 25; playSound('eat');
-                } else if (food.type === 'gold') {
-                    score += 30; coins += 5; xp += 50; playSound('bonus');
+            for (let b of bots) {
+                if (!b.alive) continue;
+                for (let part of b.snake) {
+                    if (head.x === part.x && head.y === part.y) return gameOver();
                 }
-
-                bpLevel = Math.floor(xp / 100) + 1;
-                updateStats();
-                spawnFood();
-            } else {
-                snake.pop();
             }
 
+            snake.unshift(head);
+
+            let ate = false;
+            for (let i = foods.length - 1; i >= 0; i--) {
+                if (head.x === foods[i].x && head.y === foods[i].y) {
+                    createParticles(foods[i].x, foods[i].y);
+                    if (foods[i].type === 'normal') {
+                        score += 10; coins += 1; xp += 25; playSound('eat');
+                    } else {
+                        score += 30; coins += 5; xp += 50; playSound('bonus');
+                    }
+                    foods.splice(i, 1);
+                    spawnFood(1);
+                    ate = true;
+                    break;
+                }
+            }
+            if (!ate) snake.pop();
+
+            if (isOnlineMode && gameTick % 2 === 0) {
+                updateBots();
+            }
+
+            bpLevel = Math.floor(xp / 100) + 1;
+            updateStats();
             draw();
         }
 
+        function updateBots() {
+            bots.forEach(b => {
+                if (!b.alive) return;
+
+                const bHead = b.snake[0];
+
+                let closestFood = null;
+                let minDist = 9999;
+                foods.forEach(f => {
+                    let d = Math.abs(f.x - bHead.x) + Math.abs(f.y - bHead.y);
+                    if (d < minDist) { minDist = d; closestFood = f; }
+                });
+
+                let possibleMoves = [
+                    { dx: gridSize, dy: 0 },
+                    { dx: -gridSize, dy: 0 },
+                    { dx: 0, dy: gridSize },
+                    { dx: 0, dy: -gridSize }
+                ];
+
+                possibleMoves = possibleMoves.filter(m => !(m.dx === -b.dx && m.dy === -b.dy));
+
+                let safeMoves = possibleMoves.filter(m => {
+                    let nx = bHead.x + m.dx;
+                    let ny = bHead.y + m.dy;
+                    if (nx < 0 || nx >= canvas.width || ny < 0 || ny >= canvas.height) return false;
+                    
+                    for (let p of snake) if (p.x === nx && p.y === ny) return false;
+                    
+                    for (let ob of bots) {
+                        if (!ob.alive) continue;
+                        for (let p of ob.snake) if (p.x === nx && p.y === ny) return false;
+                    }
+                    return true;
+                });
+
+                if (safeMoves.length > 0) {
+                    if (closestFood) {
+                        safeMoves.sort((m1, m2) => {
+                            let d1 = Math.abs((bHead.x + m1.dx) - closestFood.x) + Math.abs((bHead.y + m1.dy) - closestFood.y);
+                            let d2 = Math.abs((bHead.x + m2.dx) - closestFood.x) + Math.abs((bHead.y + m2.dy) - closestFood.y);
+                            return d1 - d2;
+                        });
+                    }
+                    b.dx = safeMoves[0].dx;
+                    b.dy = safeMoves[0].dy;
+                }
+
+                const newHead = { x: bHead.x + b.dx, y: bHead.y + b.dy };
+
+                let botDied = false;
+                for (let p of snake) {
+                    if (newHead.x === p.x && newHead.y === p.y) {
+                        botDied = true;
+                        break;
+                    }
+                }
+
+                if (newHead.x < 0 || newHead.x >= canvas.width || newHead.y < 0 || newHead.y >= canvas.height) {
+                    botDied = true;
+                }
+
+                if (botDied) {
+                    b.alive = false;
+                    b.snake.forEach(p => {
+                        foods.push({ x: p.x, y: p.y, type: 'gold' });
+                    });
+                    setTimeout(() => {
+                        let rx = Math.floor(Math.random() * (tileCountX - 4) + 2) * gridSize;
+                        let ry = Math.floor(Math.random() * (tileCountY - 4) + 2) * gridSize;
+                        b.snake = [{ x: rx, y: ry }];
+                        b.alive = true;
+                    }, 3000);
+                    return;
+                }
+
+                b.snake.unshift(newHead);
+
+                let botAte = false;
+                for (let i = foods.length - 1; i >= 0; i--) {
+                    if (newHead.x === foods[i].x && newHead.y === foods[i].y) {
+                        foods.splice(i, 1);
+                        spawnFood(1);
+                        botAte = true;
+                        break;
+                    }
+                }
+                if (!botAte) b.snake.pop();
+            });
+        }
+
         function createParticles(x, y) {
-            for (let i = 0; i < 8; i++) {
+            for (let i = 0; i < 6; i++) {
                 particles.push({
                     x: x + gridSize/2, y: y + gridSize/2,
                     vx: (Math.random() - 0.5) * 4, vy: (Math.random() - 0.5) * 4,
-                    life: 15, color: '#f59e0b'
+                    life: 12, color: '#f59e0b'
                 });
             }
         }
 
         function draw() {
-            // Háttér téma
-            ctx.fillStyle = selectedBg === 'dark' ? '#090d16' : (selectedBg === 'matrix' ? '#022c22' : '#291405');
+            ctx.fillStyle = selectedBg === 'dark' ? 'rgba(9, 13, 22, 0.85)' : (selectedBg === 'matrix' ? 'rgba(2, 44, 34, 0.85)' : 'rgba(41, 20, 5, 0.85)');
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Rács
             ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
             for (let i = 0; i < canvas.width; i += gridSize) {
                 ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, canvas.height); ctx.stroke();
+            }
+            for (let i = 0; i < canvas.height; i += gridSize) {
                 ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(canvas.width, i); ctx.stroke();
             }
 
-            // Akadályok
             ctx.fillStyle = '#64748b';
             obstacles.forEach(o => ctx.fillRect(o.x, o.y, gridSize - 1, gridSize - 1));
 
-            // ÉTEL KIRAJZOLÁSA (Skin szerint)
-            const fx = food.x + gridSize/2;
-            const fy = food.y + gridSize/2;
+            foods.forEach(f => {
+                const fx = f.x + gridSize/2;
+                const fy = f.y + gridSize/2;
 
-            if (selectedFood === 'cherry') {
-                // Cseresznye
-                ctx.fillStyle = '#dc2626';
-                ctx.beginPath(); ctx.arc(fx - 3, fy + 2, 4, 0, Math.PI * 2); ctx.fill();
-                ctx.beginPath(); ctx.arc(fx + 3, fy + 2, 4, 0, Math.PI * 2); ctx.fill();
-            } else if (selectedFood === 'donut') {
-                // Fánk
-                ctx.fillStyle = '#d97706';
-                ctx.beginPath(); ctx.arc(fx, fy, 6, 0, Math.PI * 2); ctx.fill();
-                ctx.fillStyle = '#090d16';
-                ctx.beginPath(); ctx.arc(fx, fy, 2, 0, Math.PI * 2); ctx.fill();
-            } else {
-                // Sima Alma
-                ctx.fillStyle = food.type === 'normal' ? '#ef4444' : '#f59e0b';
-                ctx.beginPath(); ctx.arc(fx, fy + 1, 7, 0, Math.PI * 2); ctx.fill();
-                ctx.strokeStyle = '#78350f'; ctx.lineWidth = 1.5;
-                ctx.beginPath(); ctx.moveTo(fx, fy - 5); ctx.lineTo(fx + 2, fy - 9); ctx.stroke();
-            }
+                if (selectedFood === 'cherry') {
+                    ctx.fillStyle = '#dc2626';
+                    ctx.beginPath(); ctx.arc(fx - 3, fy + 2, 4, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(fx + 3, fy + 2, 4, 0, Math.PI * 2); ctx.fill();
+                } else if (selectedFood === 'donut') {
+                    ctx.fillStyle = '#d97706';
+                    ctx.beginPath(); ctx.arc(fx, fy, 6, 0, Math.PI * 2); ctx.fill();
+                    ctx.fillStyle = '#090d16';
+                    ctx.beginPath(); ctx.arc(fx, fy, 2, 0, Math.PI * 2); ctx.fill();
+                } else {
+                    ctx.fillStyle = f.type === 'normal' ? '#ef4444' : '#f59e0b';
+                    ctx.beginPath(); ctx.arc(fx, fy + 1, 7, 0, Math.PI * 2); ctx.fill();
+                    ctx.strokeStyle = '#78350f'; ctx.lineWidth = 1.5;
+                    ctx.beginPath(); ctx.moveTo(fx, fy - 5); ctx.lineTo(fx + 2, fy - 9); ctx.stroke();
+                }
+            });
 
-            // KÍGYÓ KIRAJZOLÁSA (Skin szerint)
+            bots.forEach(b => {
+                if (!b.alive) return;
+                b.snake.forEach((part, index) => {
+                    ctx.fillStyle = b.color;
+                    ctx.beginPath();
+                    ctx.arc(part.x + gridSize/2, part.y + gridSize/2, gridSize/2 - 1, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    if (index === 0) {
+                        ctx.fillStyle = '#ffffff';
+                        ctx.font = '10px Arial';
+                        ctx.fillText(b.name, part.x - 5, part.y - 4);
+                    }
+                });
+            });
+
             snake.forEach((part, index) => {
                 let mainColor = '#10b981';
                 if (selectedSnake === 'purple') mainColor = '#a855f7';
@@ -642,7 +1083,6 @@
                     ctx.arc(part.x + gridSize/2, part.y + gridSize/2, gridSize/2, 0, Math.PI * 2);
                     ctx.fill();
 
-                    // Szemek
                     ctx.fillStyle = '#ffffff';
                     let eyeX1 = part.x + 6, eyeY1 = part.y + 6;
                     let eyeX2 = part.x + 14, eyeY2 = part.y + 6;
@@ -663,7 +1103,6 @@
                 }
             });
 
-            // Részecskék
             particles.forEach((p, index) => {
                 p.x += p.vx; p.y += p.vy; p.life--;
                 ctx.fillStyle = p.color;
@@ -746,7 +1185,6 @@
         }
 
         function updateShopUI() {
-            // Snake gombok
             ['green', 'purple', 'red', 'gold'].forEach(id => {
                 const btn = document.getElementById(`skin-${id}-btn`);
                 if (btn) {
@@ -754,7 +1192,6 @@
                     else if (ownedItems.snake.includes(id)) btn.innerText = 'Kiválaszt';
                 }
             });
-            // Food gombok
             ['apple', 'cherry', 'donut'].forEach(id => {
                 const btn = document.getElementById(`foodskin-${id}-btn`);
                 if (btn) {
@@ -762,7 +1199,6 @@
                     else if (ownedItems.food.includes(id)) btn.innerText = 'Kiválaszt';
                 }
             });
-            // BG gombok
             ['dark', 'matrix', 'retro'].forEach(id => {
                 const btn = document.getElementById(`bgskin-${id}-btn`);
                 if (btn) {
@@ -795,10 +1231,21 @@
 
         function toggleAccordion(id) {
             const el = document.getElementById(id + '-content');
+            const icon = document.getElementById(id + '-icon');
+            const isHidden = el.classList.contains('hidden');
             el.classList.toggle('hidden');
+            if (icon) icon.innerText = isHidden ? '▲' : '▼';
+        }
+
+        function openAccordion(id) {
+            const el = document.getElementById(id + '-content');
+            const icon = document.getElementById(id + '-icon');
+            el.classList.remove('hidden');
+            if (icon) icon.innerText = '▲';
         }
 
         renderBP();
+        draw();
     </script>
 </body>
 </html>
